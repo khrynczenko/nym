@@ -14,4 +14,4 @@ main = run =<< execParser opts
             (fullDesc <> progDesc "Synonym finder.")
 
 run :: Arguments -> IO ()
-run (Arguments x y) = TIO.putStrLn x
+run (Arguments x _) = TIO.putStrLn x

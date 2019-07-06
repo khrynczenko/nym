@@ -1,6 +1,5 @@
 # nym
 
-
 ## *WIP* - NOT WORKING YET
 
 ## Introduction
