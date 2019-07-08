@@ -22,8 +22,6 @@ description:         Please see the README on GitHub at <https://github.com/khry
 dependencies:
 - base >= 4.7 && < 5
 
-default-extensions: 
-  - OverloadedStrings
 
 executables:
   nym:
@@ -38,6 +36,9 @@ executables:
     - -Wincomplete-record-updates
     - -Wincomplete-uni-patterns
     - -Wredundant-constraints
+    - -Werror
+    default-extensions:
+    - OverloadedStrings
     dependencies:
     - sqlite-simple
     - optparse-applicative
@@ -56,6 +57,9 @@ tests:
     - -Wincomplete-record-updates
     - -Wincomplete-uni-patterns
     - -Wredundant-constraints
+    - -Werror
+    default-extensions:
+    - OverloadedStrings
     dependencies:
-    - nym-exe
+    - nym
     - hspec
