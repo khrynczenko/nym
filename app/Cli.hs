@@ -1,10 +1,13 @@
-module Cli where
+module Cli 
+    ( Arguments(Arguments)
+    , argumentsParser
+    , word
+    , nResults
+    ) where
 
 import Options.Applicative (Parser)
 import qualified Options.Applicative as OP
-import Data.Semigroup ((<>))
 import Data.Text (Text)
-import qualified Data.Text as T
 
 data Arguments = Arguments { word :: Text
                            , nResults :: Int

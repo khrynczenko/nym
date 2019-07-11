@@ -1,17 +1,28 @@
 module Main where
 
-import Cli (argumentsParser, Arguments(..))
-import Options.Applicative
+import Options.Applicative ((<**>))
+import qualified Options.Applicative as OP
 import qualified Data.Text.IO as TIO
-
-
+import Cli (argumentsParser, Arguments(..), word)
+import Nym (NymState, dbFilename, createNymState, arguments, dbHandle)
+import Search (searchForSynonyms)
 
 main :: IO ()
-main = run =<< execParser opts
+main = do
+    args <- OP.execParser opts
+    state <- createNymState dbFilename args
+    run state
     where
-        opts = info
-            (argumentsParser <**> helper)
-            (fullDesc <> progDesc "Synonym finder.")
+        opts = OP.info
+            (argumentsParser <**> OP.helper)
+            (OP.fullDesc <> OP.progDesc "Synonym finder.")
 
-run :: Arguments -> IO ()
-run (Arguments x _) = TIO.putStrLn x
+run :: NymState -> IO ()
+run state = do
+    synonyms <- searchForSynonyms db w
+    let firstN = take toTake synonyms
+    mapM_ TIO.putStrLn firstN
+  where
+    w = word $ arguments state
+    toTake = nResults $ arguments state
+    db = dbHandle state
