@@ -6,16 +6,17 @@ module Nym
     , createNymState
     ) where
 
-import qualified Data.Text as T
+import Data.Text (Text)
+
 import Cli (Arguments)
-import qualified Search as S
+import Search as S
 
 data NymState = NymState 
     { dbHandle :: S.Handle
     , arguments :: Arguments
     }
 
-dbFilename :: T.Text
+dbFilename :: Text
 dbFilename = "nyms.db"
 
 createNymState :: S.DatabasePath -> Arguments -> IO NymState

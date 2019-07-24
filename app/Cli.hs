@@ -5,9 +5,9 @@ module Cli
     , nResults
     ) where
 
+import Data.Text (Text)
 import Options.Applicative (Parser)
 import qualified Options.Applicative as OP
-import Data.Text (Text)
 
 data Arguments = Arguments { word :: Text
                            , nResults :: Int

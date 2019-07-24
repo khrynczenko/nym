@@ -3,6 +3,7 @@ module Main where
 import Options.Applicative ((<**>))
 import qualified Options.Applicative as OP
 import qualified Data.Text.IO as TIO
+
 import Cli (argumentsParser, Arguments(..), word)
 import Nym (NymState, dbFilename, createNymState, arguments, dbHandle)
 import Search (searchForSynonyms)

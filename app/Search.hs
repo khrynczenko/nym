@@ -5,8 +5,11 @@ module Search
     , searchForSynonyms
     ) where
 
-import qualified Data.Text as T
+import Data.Maybe (listToMaybe)
+
 import Data.Text (Text)
+import qualified Data.Text as T
+
 import Database.SQLite.Simple (Connection, Only(..))
 import qualified Database.SQLite.Simple as DB
 
@@ -19,18 +22,20 @@ createHandle dbPath = Handle <$> DB.open (T.unpack dbPath)
 
 searchForSynonyms :: Handle -> Text -> IO [Text]
 searchForSynonyms handle word = do 
-    foundIds <- (DB.query conn getWordId (Only (T.unpack word) )) :: IO [Only Int]
+    foundIds <- (DB.query conn getWordId (Only (T.unpack word))) :: IO [Only Int]
     let foundIds' = fmap DB.fromOnly foundIds
-    let wordId = head foundIds'
-    foundSynonymsIds <- (DB.query conn getSynonymsIds (Only wordId)) :: IO [Only Int]
-    let foundSynonymsIds' = fmap DB.fromOnly foundSynonymsIds
-    -- let foundSynonyms = fmap (head . (DB.query conn getSynonymWord)) foundSynonymsIds
-    allIdsAndWords <- DB.query conn getAllIdsAndWords ()  :: IO [(Int, Text)]
-    let synonyms = filter (\(wid, _) -> wid `elem` foundSynonymsIds') allIdsAndWords 
-    return $ fmap snd synonyms
+    let maybeWordId = listToMaybe foundIds'
+    let foundSynonyms = case maybeWordId of 
+            (Just wordId) -> (DB.query conn getSynonyms (Only wordId)) :: IO [Only Text]
+            Nothing -> (return []) :: IO [Only Text]
+    let foundSynonyms' = fmap  (fmap DB.fromOnly) foundSynonyms
+    foundSynonyms'
   where
     conn = connection handle
     getWordId = DB.Query "SELECT id from words where word=?"
-    getSynonymsIds = DB.Query "SELECT synonym_id from synonyms where word_id=?"
-    -- getSynonymWord = DB.Query "SELECT word from words where id=?"
-    getAllIdsAndWords = DB.Query "SELECT * from words"
+    getSynonyms = DB.Query $ mconcat 
+      [ "SELECT words.word FROM words WHERE words.id IN ( "
+      , "SELECT synonyms.synonym_id FROM synonyms "
+      , "INNER JOIN words ON words.id=synonyms.word_id "
+      , "WHERE words.id=?)"
+      ]
