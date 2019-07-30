@@ -4,9 +4,25 @@ import Options.Applicative ((<**>))
 import qualified Options.Applicative as OP
 import qualified Data.Text.IO as TIO
 
+import Data.Text (Text)
 import Cli (argumentsParser, Arguments(..), word)
-import Nym (NymState, dbFilename, createNymState, arguments, dbHandle)
 import Search (searchForSynonyms)
+
+
+import Search as S
+
+data NymState = NymState 
+    { dbHandle :: S.Handle
+    , arguments :: Arguments
+    }
+
+dbFilename :: Text
+dbFilename = "nyms.db"
+
+createNymState :: S.DatabasePath -> Arguments -> IO NymState
+createNymState dbPath args = do
+    handle <- S.createHandle dbPath
+    return (NymState handle args)
 
 main :: IO ()
 main = do
