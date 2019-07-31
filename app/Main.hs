@@ -1,10 +1,10 @@
 module Main where
 
+import Data.Text (Text)
+import qualified Data.Text.IO as TIO
 import Options.Applicative ((<**>))
 import qualified Options.Applicative as OP
-import qualified Data.Text.IO as TIO
 
-import Data.Text (Text)
 import Cli (argumentsParser, Arguments(..), word)
 import Search (searchForSynonyms)
 
@@ -29,10 +29,11 @@ main = do
     args <- OP.execParser opts
     state <- createNymState dbFilename args
     run state
-    where
-        opts = OP.info
-            (argumentsParser <**> OP.helper)
-            (OP.fullDesc <> OP.progDesc "Synonym finder.")
+  where
+    opts = OP.info
+        (argumentsParser <**> OP.helper)
+        (OP.fullDesc <> OP.progDesc description)
+    description = mconcat ["nym - synonyms lookup tool"]
 
 run :: NymState -> IO ()
 run state = do
