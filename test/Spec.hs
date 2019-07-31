@@ -1,2 +1,9 @@
+import Test.Hspec (hspec)
+
+import Search (createHandle)
+import TestSearch
+
 main :: IO ()
-main = putStrLn "Test suite not yet implemented"
+main = do
+    handle <- createHandle "nyms.db"
+    hspec $ testSearchForSynonyms handle

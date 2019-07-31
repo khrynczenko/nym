@@ -22,6 +22,21 @@ description:         Please see the README on GitHub at <https://github.com/khry
 dependencies:
 - base >= 4.7 && < 5
 
+library:
+  source-dirs: 
+  - src
+  ghc-options:
+  - -Wall
+  - -Wcompat
+  - -Wincomplete-record-updates
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
+  - -Werror
+  default-extensions:
+  - OverloadedStrings
+  dependencies:
+  - sqlite-simple
+  - text
 
 executables:
   nym:
@@ -40,14 +55,15 @@ executables:
     default-extensions:
     - OverloadedStrings
     dependencies:
-    - sqlite-simple
+    - nym
     - optparse-applicative
     - text
 
 tests:
   nym-test:
     main:                Spec.hs
-    source-dirs:         test
+    source-dirs:
+    - test
     ghc-options:
     - -threaded
     - -rtsopts

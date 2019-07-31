@@ -22,16 +22,19 @@ createHandle dbPath = Handle <$> DB.open (T.unpack dbPath)
 
 searchForSynonyms :: Handle -> Text -> IO [Text]
 searchForSynonyms handle word = do 
-    foundIds <- (DB.query conn getWordId (Only (T.unpack word))) :: IO [Only Int]
+    foundIds <- 
+      (DB.query conn getWordId (Only (word'))) :: IO [Only Int]
     let foundIds' = fmap DB.fromOnly foundIds
     let maybeWordId = listToMaybe foundIds'
     let foundSynonyms = case maybeWordId of 
-            (Just wordId) -> (DB.query conn getSynonyms (Only wordId)) :: IO [Only Text]
+            (Just wordId) -> 
+              (DB.query conn getSynonyms (Only wordId)) :: IO [Only Text]
             Nothing -> (return []) :: IO [Only Text]
-    let foundSynonyms' = fmap  (fmap DB.fromOnly) foundSynonyms
+    let foundSynonyms' = fmap (fmap DB.fromOnly) foundSynonyms
     foundSynonyms'
   where
     conn = connection handle
+    word' = T.toLower word
     getWordId = DB.Query "SELECT id from words where word=?"
     getSynonyms = DB.Query $ mconcat 
       [ "SELECT words.word FROM words WHERE words.id IN ( "
