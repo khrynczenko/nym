@@ -1,8 +1,9 @@
 module Search 
     ( Handle()
     , DatabasePath
+    , NymsCategory(..)
     , createHandle
-    , searchForSynonyms
+    , lookForNyms
     ) where
 
 import Data.Maybe (listToMaybe)
@@ -15,30 +16,47 @@ import qualified Database.SQLite.Simple as DB
 
 type DatabasePath = Text
 
+data NymsCategory = Synonyms | Antonyms deriving (Show)
+
 data Handle = Handle { connection :: Connection }
 
 createHandle :: DatabasePath -> IO Handle
 createHandle dbPath = Handle <$> DB.open (T.unpack dbPath)
 
-searchForSynonyms :: Handle -> Text -> IO [Text]
-searchForSynonyms handle word = do 
+lookForNyms :: Handle -> NymsCategory -> Text -> IO [Text]
+lookForNyms handle category word = do 
+    maybeWordId <- searchForWordId handle lowerCaseWord
+    case maybeWordId of
+        (Just wordId) -> searchForNyms handle category wordId
+        Nothing -> return []
+  where
+    lowerCaseWord = T.toLower word
+
+searchForNyms :: Handle -> NymsCategory -> Int -> IO [Text]
+searchForNyms handle category wordId = do 
+    foundNyms <- (DB.query conn getNyms (Only wordId)) :: IO [Only Text]
+    return $ fmap DB.fromOnly foundNyms
+  where
+    conn = connection handle
+    tableName = T.toLower $ ( T.pack $ show category)
+    columnName = (T.toLower . T.init $ ( T.pack $ show category)) <> "_id"
+    getNyms = DB.Query $ mconcat 
+      [ "SELECT words.word FROM words WHERE words.id IN ( "
+      , "SELECT "
+      , columnName
+      , " FROM "
+      , tableName
+      , " INNER JOIN words ON words.id=word_id "
+      , "WHERE words.id=?)"
+      ]
+
+searchForWordId :: Handle -> Text -> IO (Maybe Int)
+searchForWordId handle word = do 
     foundIds <- 
-      (DB.query conn getWordId (Only (word'))) :: IO [Only Int]
+      (DB.query conn lookForWordId (Only (word'))) :: IO [Only Int] 
     let foundIds' = fmap DB.fromOnly foundIds
-    let maybeWordId = listToMaybe foundIds'
-    let foundSynonyms = case maybeWordId of 
-            (Just wordId) -> 
-              (DB.query conn getSynonyms (Only wordId)) :: IO [Only Text]
-            Nothing -> (return []) :: IO [Only Text]
-    let foundSynonyms' = fmap (fmap DB.fromOnly) foundSynonyms
-    foundSynonyms'
+    return $ listToMaybe foundIds'
   where
     conn = connection handle
     word' = T.toLower word
-    getWordId = DB.Query "SELECT id from words where word=?"
-    getSynonyms = DB.Query $ mconcat 
-      [ "SELECT words.word FROM words WHERE words.id IN ( "
-      , "SELECT synonyms.synonym_id FROM synonyms "
-      , "INNER JOIN words ON words.id=synonyms.word_id "
-      , "WHERE words.id=?)"
-      ]
+    lookForWordId = DB.Query "SELECT id from words where word=?"

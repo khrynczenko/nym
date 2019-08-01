@@ -6,4 +6,4 @@ import TestSearch
 main :: IO ()
 main = do
     handle <- createHandle "nyms.db"
-    hspec $ testSearchForSynonyms handle
+    hspec $ testLookForNyms handle
