@@ -22,6 +22,9 @@ description:         Please see the README on GitHub at <https://github.com/khry
 dependencies:
 - base >= 4.7 && < 5
 
+install-includes:
+  - nyms.db
+
 library:
   source-dirs: 
   - src
