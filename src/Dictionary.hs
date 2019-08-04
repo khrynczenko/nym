@@ -1,9 +1,10 @@
-module Search 
+module Dictionary 
     ( Handle()
     , DatabasePath
     , NymsCategory(..)
     , createHandle
     , lookForNyms
+    , getAllWords
     ) where
 
 import Data.Maybe (listToMaybe)
@@ -31,6 +32,14 @@ lookForNyms handle category word = do
         Nothing -> return []
   where
     lowerCaseWord = T.toLower word
+
+getAllWords :: Handle -> IO [Text]
+getAllWords handle = do
+    allWords <- (DB.query_ conn sqlQuery) :: IO [Only Text]
+    return $ fmap DB.fromOnly allWords
+  where
+    conn = connection handle
+    sqlQuery = "SELECT words.word FROM words"
 
 searchForNyms :: Handle -> NymsCategory -> Int -> IO [Text]
 searchForNyms handle category wordId = do 

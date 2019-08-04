@@ -11,7 +11,7 @@ import Data.Text (Text)
 import Options.Applicative (Parser)
 import qualified Options.Applicative as OP
 
-import Search (NymsCategory(..))
+import Dictionary (NymsCategory(..))
 
 data Arguments = Arguments { word :: Text
                            , nResults :: Int

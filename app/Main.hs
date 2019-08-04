@@ -10,22 +10,22 @@ import Cli ( argumentsParser
            , nymsCategory
            , Arguments(..)
            )
-import Search (lookForNyms)
 
-
-import Search as S
+import Dictionary (lookForNyms, getAllWords)
+import Dictionary as D
+import WordDistance (findMostSimilarWords)
 
 data NymState = NymState 
-    { dbHandle :: S.Handle
+    { dbHandle :: D.Handle
     , arguments :: Arguments
     }
 
 dbFilename :: Text
 dbFilename = "nyms.db"
 
-createNymState :: S.DatabasePath -> Arguments -> IO NymState
+createNymState :: D.DatabasePath -> Arguments -> IO NymState
 createNymState dbPath args = do
-    handle <- S.createHandle dbPath
+    handle <- D.createHandle dbPath
     return (NymState handle args)
 
 main :: IO ()
@@ -42,10 +42,25 @@ main = do
 run :: NymState -> IO ()
 run state = do
     nyms <- lookForNyms db whatNymsToLookFor w
-    let firstN = take toTake nyms
-    mapM_ TIO.putStrLn firstN
+    case nyms of
+        [] -> do
+            allWords <- getAllWords db
+            TIO.putStrLn (notFoundSynonymsMessage
+                (head $ similarWords allWords))
+        _ -> do
+            let firstN = take toTake nyms
+            mapM_ TIO.putStrLn firstN
   where
     whatNymsToLookFor = nymsCategory $ arguments state
     w = word $ arguments state
     toTake = nResults $ arguments state
     db = dbHandle state
+    similarWords = findMostSimilarWords w
+    notFoundSynonymsMessage possibleWord = mconcat
+        [ "Could not find synonyms for "
+        , w
+        , ". "
+        , "Did you mean "
+        , possibleWord
+        , "?"
+        ]

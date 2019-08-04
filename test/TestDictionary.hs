@@ -1,5 +1,6 @@
-module TestSearch
+module TestDictionary
     ( testLookForNyms
+    , testGetAllWords
     ) where
 
 import Test.Hspec ( describe
@@ -10,7 +11,10 @@ import Test.Hspec ( describe
                   , SpecWith
                   )
 
-import Search (lookForNyms, Handle, NymsCategory(..))
+import Dictionary ( lookForNyms
+                  , getAllWords
+                  , Handle
+                  , NymsCategory(..))
 
 testLookForNyms :: Handle -> SpecWith (Arg Bool)
 testLookForNyms handle = do
@@ -35,10 +39,10 @@ testLookForNyms handle = do
             foundSynonyms <- lookForNyms handle Antonyms "aBuSe"
             length foundSynonyms `shouldNotBe` 0
 
--- testSearchForWord :: Handle -> SpecWith (Arg Bool)
--- testSearchForWord handle = do
---     describe "Look for a word in database." $ do
---         it "Retrieves a word if it exists in database." $ do
---             foundWord <- searchForWord handle "abuse"
---             isJust foundWord `shouldBe` True
+testGetAllWords :: Handle -> SpecWith (Arg Bool)
+testGetAllWords handle = do
+    describe "Get all words from databse." $ do
+        it "Retrieves all words from database." $ do
+            foundWords <- getAllWords handle
+            length foundWords `shouldBe` 5854
             

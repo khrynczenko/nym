@@ -1,9 +1,12 @@
 import Test.Hspec (hspec)
 
-import Search (createHandle)
-import TestSearch
+import Dictionary (createHandle)
+import TestDictionary
+import TestWordDistance
 
 main :: IO ()
 main = do
     handle <- createHandle "nyms.db"
-    hspec $ testLookForNyms handle
+    hspec $ do
+        testLookForNyms handle
+        testFindMostSimilarWords
