@@ -40,6 +40,7 @@ library:
   dependencies:
   - sqlite-simple
   - text
+  - array
 
 executables:
   nym:

@@ -1,6 +1,7 @@
 module Main where
 
 import Data.Text (Text)
+import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import Options.Applicative ((<**>))
 import qualified Options.Applicative as OP
@@ -10,7 +11,6 @@ import Cli ( argumentsParser
            , nymsCategory
            , Arguments(..)
            )
-
 import Dictionary (lookForNyms, getAllWords)
 import Dictionary as D
 import WordDistance (findMostSimilarWords)
@@ -45,8 +45,8 @@ run state = do
     case nyms of
         [] -> do
             allWords <- getAllWords db
-            TIO.putStrLn (notFoundSynonymsMessage
-                (head $ similarWords allWords))
+            let similar = similarWords allWords
+            printSimilarWords whatNymsToLookFor w similar
         _ -> do
             let firstN = take toTake nyms
             mapM_ TIO.putStrLn firstN
@@ -56,11 +56,24 @@ run state = do
     toTake = nResults $ arguments state
     db = dbHandle state
     similarWords = findMostSimilarWords w
-    notFoundSynonymsMessage possibleWord = mconcat
-        [ "Could not find synonyms for "
+
+printSimilarWords :: NymsCategory -> Text -> [Text] -> IO ()
+printSimilarWords category w similarWords = do
+    if null similarWords
+    then 
+        TIO.putStrLn notFoundSynonymsMessage
+    else
+        mapM_ TIO.putStrLn 
+            (notFoundSynonymsMessageButFoundSimilar : similarWords)
+  where
+    whichNyms = (T.toLower . T.pack . show) category
+    notFoundSynonymsMessage = mconcat $
+        [ "Could not find "
+        , whichNyms
+        , " for "
         , w
         , ". "
-        , "Did you mean "
-        , possibleWord
-        , "?"
         ]
+    notFoundSynonymsMessageButFoundSimilar =
+        notFoundSynonymsMessage <> "Maybe you meant one of these:"
+
