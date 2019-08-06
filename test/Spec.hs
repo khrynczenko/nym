@@ -1,8 +1,8 @@
 import Test.Hspec (hspec)
 
-import Dictionary (createHandle)
-import TestDictionary
-import TestWordDistance
+import Words.Database (createHandle)
+import Words.TestDatabase
+import Words.TestSimilarity
 
 main :: IO ()
 main = do

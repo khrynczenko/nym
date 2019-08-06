@@ -1,4 +1,4 @@
-module WordDistance 
+module Words.Similarity 
     ( findMostSimilarWords
     )
 where
@@ -7,17 +7,20 @@ import Data.Array
 import Data.Text (Text)
 import qualified Data.Text as T
 
+similarityThreshold :: Int
+similarityThreshold = 2
+
 findMostSimilarWords :: Text -> [Text] -> [Text]
-findMostSimilarWords word allWords = withoutWordThatIsTheSame mostSimilarWords
+findMostSimilarWords word allWords = similarWords
   where
-    mostSimilarWords = map fst $ filter (\x -> snd x == bestCost) wordsAndCosts
-    withoutWordThatIsTheSame = filter (\x -> x /= word)
-    distances = map (computeDistance . T.unpack) allWords
-    computeDistance = computeLevensteinDistance (T.unpack word)
-    -- bestCost gets 0 if distance is 4 so the list will be empty
-    -- distance of 4 is probably completly different word
-    bestCost = if minimum distances < 4 then minimum distances else 0
-    wordsAndCosts = zip allWords distances
+    similarWords = filter (areWordsSimilar word) allWords
+
+areWordsSimilar :: Text -> Text -> Bool
+areWordsSimilar w1 w2 = distance <= similarityThreshold
+  where
+    w1' = T.unpack w1
+    w2' = T.unpack w2
+    distance = computeLevensteinDistance w1' w2'
 
 computeLevensteinDistance :: String -> String -> Int
 computeLevensteinDistance xs ys = levMemo ! (n, m)

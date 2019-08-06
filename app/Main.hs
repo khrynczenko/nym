@@ -1,31 +1,31 @@
 module Main where
 
 import Data.Text (Text)
-import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import Options.Applicative ((<**>))
 import qualified Options.Applicative as OP
 
 import Cli ( argumentsParser
-           , word
-           , nymsCategory
+           , getWord
+           , getCategory
            , Arguments(..)
            )
-import Dictionary (lookForNyms, getAllWords)
-import Dictionary as D
-import WordDistance (findMostSimilarWords)
+import qualified Messages as Messages
+import Words.Database (lookForNyms, getAllWords)
+import Words.Database as WDB
+import Words.Similarity (findMostSimilarWords)
 
 data NymState = NymState 
-    { dbHandle :: D.Handle
+    { dbHandle :: WDB.Handle
     , arguments :: Arguments
     }
 
 dbFilename :: Text
 dbFilename = "nyms.db"
 
-createNymState :: D.DatabasePath -> Arguments -> IO NymState
+createNymState :: WDB.DatabasePath -> Arguments -> IO NymState
 createNymState dbPath args = do
-    handle <- D.createHandle dbPath
+    handle <- WDB.createHandle dbPath
     return (NymState handle args)
 
 main :: IO ()
@@ -41,39 +41,18 @@ main = do
 
 run :: NymState -> IO ()
 run state = do
-    nyms <- lookForNyms db whatNymsToLookFor w
+    nyms <- lookForNyms db category word
     case nyms of
         [] -> do
             allWords <- getAllWords db
-            let similar = similarWords allWords
-            printSimilarWords whatNymsToLookFor w similar
+            let similarWords = findMostSimilarWords' allWords
+            TIO.putStrLn $ Messages.buildNotFoundNyms category word similarWords
         _ -> do
             let firstN = take toTake nyms
             mapM_ TIO.putStrLn firstN
   where
-    whatNymsToLookFor = nymsCategory $ arguments state
-    w = word $ arguments state
-    toTake = nResults $ arguments state
+    category = getCategory $ arguments state
+    word = getWord $ arguments state
+    toTake = getNResults $ arguments state
     db = dbHandle state
-    similarWords = findMostSimilarWords w
-
-printSimilarWords :: NymsCategory -> Text -> [Text] -> IO ()
-printSimilarWords category w similarWords = do
-    if null similarWords
-    then 
-        TIO.putStrLn notFoundSynonymsMessage
-    else
-        mapM_ TIO.putStrLn 
-            (notFoundSynonymsMessageButFoundSimilar : similarWords)
-  where
-    whichNyms = (T.toLower . T.pack . show) category
-    notFoundSynonymsMessage = mconcat $
-        [ "Could not find "
-        , whichNyms
-        , " for "
-        , w
-        , ". "
-        ]
-    notFoundSynonymsMessageButFoundSimilar =
-        notFoundSynonymsMessage <> "Maybe you meant one of these:"
-
+    findMostSimilarWords' = findMostSimilarWords word

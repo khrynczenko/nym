@@ -1,21 +1,20 @@
 module Cli 
     ( Arguments(Arguments)
-    , NymsCategory(..)
     , argumentsParser
-    , word
-    , nResults
-    , nymsCategory
+    , getWord
+    , getNResults
+    , getCategory
     ) where
 
 import Data.Text (Text)
 import Options.Applicative (Parser)
 import qualified Options.Applicative as OP
 
-import Dictionary (NymsCategory(..))
+import Words (Category(Synonyms, Antonyms))
 
-data Arguments = Arguments { word :: Text
-                           , nResults :: Int
-                           , nymsCategory :: NymsCategory
+data Arguments = Arguments { getWord :: Text
+                           , getNResults :: Int
+                           , getCategory :: Category
                            }
 
 argumentsParser :: Parser Arguments

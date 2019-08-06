@@ -1,7 +1,6 @@
-module Dictionary 
+module Words.Database 
     ( Handle()
     , DatabasePath
-    , NymsCategory(..)
     , createHandle
     , lookForNyms
     , getAllWords
@@ -11,20 +10,19 @@ import Data.Maybe (listToMaybe)
 
 import Data.Text (Text)
 import qualified Data.Text as T
-
 import Database.SQLite.Simple (Connection, Only(..))
 import qualified Database.SQLite.Simple as DB
 
-type DatabasePath = Text
+import Words (Category)
 
-data NymsCategory = Synonyms | Antonyms deriving (Show)
+type DatabasePath = Text
 
 data Handle = Handle { connection :: Connection }
 
 createHandle :: DatabasePath -> IO Handle
 createHandle dbPath = Handle <$> DB.open (T.unpack dbPath)
 
-lookForNyms :: Handle -> NymsCategory -> Text -> IO [Text]
+lookForNyms :: Handle -> Category -> Text -> IO [Text]
 lookForNyms handle category word = do 
     maybeWordId <- searchForWordId handle lowerCaseWord
     case maybeWordId of
@@ -41,7 +39,7 @@ getAllWords handle = do
     conn = connection handle
     sqlQuery = "SELECT words.word FROM words"
 
-searchForNyms :: Handle -> NymsCategory -> Int -> IO [Text]
+searchForNyms :: Handle -> Category -> Int -> IO [Text]
 searchForNyms handle category wordId = do 
     foundNyms <- (DB.query conn getNyms (Only wordId)) :: IO [Only Text]
     return $ fmap DB.fromOnly foundNyms

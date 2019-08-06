@@ -1,4 +1,4 @@
-module TestDictionary
+module Words.TestDatabase
     ( testLookForNyms
     , testGetAllWords
     ) where
@@ -11,10 +11,11 @@ import Test.Hspec ( describe
                   , SpecWith
                   )
 
-import Dictionary ( lookForNyms
-                  , getAllWords
-                  , Handle
-                  , NymsCategory(..))
+import Words (Category(Synonyms, Antonyms))                
+import Words.Database ( lookForNyms
+                      , getAllWords
+                      , Handle
+                      )
 
 testLookForNyms :: Handle -> SpecWith (Arg Bool)
 testLookForNyms handle = do
