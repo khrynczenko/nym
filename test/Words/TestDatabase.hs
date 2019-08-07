@@ -1,6 +1,6 @@
 module Words.TestDatabase
-    ( testLookForNyms
-    , testGetAllWords
+    ( testRetrieveNyms
+    , testRetrieveWords
     ) where
 
 import Test.Hspec ( describe
@@ -12,38 +12,38 @@ import Test.Hspec ( describe
                   )
 
 import Words (Category(Synonyms, Antonyms))                
-import Words.Database ( lookForNyms
-                      , getAllWords
+import Words.Database ( retrieveNyms
+                      , retrieveWords
                       , Handle
                       )
 
-testLookForNyms :: Handle -> SpecWith (Arg Bool)
-testLookForNyms handle = do
+testRetrieveNyms :: Handle -> SpecWith (Arg Bool)
+testRetrieveNyms handle = do
     describe "Look for synonyms in database." $ do
         it "Retrieves synonyms if word exists in database." $ do
-            foundSynonyms <- lookForNyms handle Synonyms "abuse"
+            foundSynonyms <- retrieveNyms handle Synonyms "abuse"
             length foundSynonyms `shouldNotBe` 0
         it "Returns empty list if word does not exist in database." $ do
-            foundSynonyms <- lookForNyms handle Synonyms "notexistingword"
+            foundSynonyms <- retrieveNyms handle Synonyms "notexistingword"
             length foundSynonyms `shouldBe` 0
         it "Does not depend on the case of letters." $ do
-            foundSynonyms <- lookForNyms handle Synonyms "aBuSe"
+            foundSynonyms <- retrieveNyms handle Synonyms "aBuSe"
             length foundSynonyms `shouldNotBe` 0
     describe "Look for antonyms in database." $ do
         it "Retrieves antonyms if word exists in database." $ do
-            foundSynonyms <- lookForNyms handle Antonyms "abuse"
+            foundSynonyms <- retrieveNyms handle Antonyms "abuse"
             length foundSynonyms `shouldNotBe` 0
         it "Returns empty list if word does not exist in database." $ do
-            foundSynonyms <- lookForNyms handle Antonyms "notexistingword"
+            foundSynonyms <- retrieveNyms handle Antonyms "notexistingword"
             length foundSynonyms `shouldBe` 0
         it "Does not depend on the case of letters." $ do
-            foundSynonyms <- lookForNyms handle Antonyms "aBuSe"
+            foundSynonyms <- retrieveNyms handle Antonyms "aBuSe"
             length foundSynonyms `shouldNotBe` 0
 
-testGetAllWords :: Handle -> SpecWith (Arg Bool)
-testGetAllWords handle = do
+testRetrieveWords :: Handle -> SpecWith (Arg Bool)
+testRetrieveWords handle = do
     describe "Get all words from databse." $ do
         it "Retrieves all words from database." $ do
-            foundWords <- getAllWords handle
+            foundWords <- retrieveWords handle
             length foundWords `shouldBe` 5854
             

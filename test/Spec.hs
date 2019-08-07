@@ -8,5 +8,5 @@ main :: IO ()
 main = do
     handle <- createHandle "nyms.db"
     hspec $ do
-        testLookForNyms handle
+        testRetrieveNyms handle
         testFindMostSimilarWords

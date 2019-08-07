@@ -2,8 +2,8 @@ module Words.Database
     ( Handle()
     , DatabasePath
     , createHandle
-    , lookForNyms
-    , getAllWords
+    , retrieveNyms
+    , retrieveWords
     ) where
 
 import Data.Maybe (listToMaybe)
@@ -22,8 +22,8 @@ data Handle = Handle { connection :: Connection }
 createHandle :: DatabasePath -> IO Handle
 createHandle dbPath = Handle <$> DB.open (T.unpack dbPath)
 
-lookForNyms :: Handle -> Category -> Text -> IO [Text]
-lookForNyms handle category word = do 
+retrieveNyms :: Handle -> Category -> Text -> IO [Text]
+retrieveNyms handle category word = do 
     maybeWordId <- searchForWordId handle lowerCaseWord
     case maybeWordId of
         (Just wordId) -> searchForNyms handle category wordId
@@ -31,8 +31,8 @@ lookForNyms handle category word = do
   where
     lowerCaseWord = T.toLower word
 
-getAllWords :: Handle -> IO [Text]
-getAllWords handle = do
+retrieveWords :: Handle -> IO [Text]
+retrieveWords handle = do
     allWords <- (DB.query_ conn sqlQuery) :: IO [Only Text]
     return $ fmap DB.fromOnly allWords
   where

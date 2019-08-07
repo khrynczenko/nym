@@ -11,7 +11,7 @@ import Cli ( argumentsParser
            , Arguments(..)
            )
 import qualified Messages as Messages
-import Words.Database (lookForNyms, getAllWords)
+import Words.Database (retrieveNyms, retrieveWords)
 import Words.Database as WDB
 import Words.Similarity (findMostSimilarWords)
 
@@ -41,10 +41,10 @@ main = do
 
 run :: NymState -> IO ()
 run state = do
-    nyms <- lookForNyms dbHandle category word
+    nyms <- retrieveNyms dbHandle category word
     case nyms of
         [] -> do
-            allWords <- getAllWords dbHandle
+            allWords <- retrieveWords dbHandle
             let similarWords = findMostSimilarWords' allWords
             TIO.putStrLn $ Messages.buildNotFoundNyms category word similarWords
         _ -> do
