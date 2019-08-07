@@ -12,11 +12,11 @@ Just run `stack build` from within project root directory.
 ## Usage
 Using stack invoke:  
 `stack run -- --help`  
-Or directly from executable:
+Or directly from executable:  
 `nym --help`  
 
 ##### Note
-`stack run` adds significant overhead and can significantly decrease the 
+`stack run` adds some overhead and can significantly decrease the 
 performance.
 
 ## Example
