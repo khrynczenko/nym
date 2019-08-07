@@ -1,7 +1,8 @@
 name:                nym
 version:             0.0.0.0
 github:              "khrynczenko/nym"
-license:             MIT
+license:             Apache-2.0
+license-file:        LICENSE
 author:              "Krzysztof Hrynczenko"
 maintainer:          "jeniopy@gmail.com"
 copyright:           "2019 Krzysztof Hrynczenko"

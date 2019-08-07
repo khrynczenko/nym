@@ -10,6 +10,8 @@ import qualified Data.Text as T
 similarityThreshold :: Int
 similarityThreshold = 2
 
+-- |Find similar words from a list of words. It uses levenstein distance
+-- up to 'similarityThreshold' to decide whether word is similar or not.
 findMostSimilarWords :: Text -> [Text] -> [Text]
 findMostSimilarWords word allWords = similarWords
   where
@@ -22,6 +24,9 @@ areWordsSimilar w1 w2 = distance <= similarityThreshold
     w2' = T.unpack w2
     distance = computeLevensteinDistance w1' w2'
 
+-- |This implementation is a copied from an anwser on reddit provided by 
+-- user cgibbard. All the details under 
+-- https://www.reddit.com/r/programming/comments/w4gs6/levenshtein_distance_in_haskell/c5a6jjz?utm_source=share&utm_medium=web2x
 computeLevensteinDistance :: String -> String -> Int
 computeLevensteinDistance xs ys = levMemo ! (n, m)
   where levMemo = 

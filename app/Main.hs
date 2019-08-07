@@ -1,9 +1,9 @@
 module Main where
 
+import qualified Options.Applicative as OP
+
 import Data.Text (Text)
 import qualified Data.Text.IO as TIO
-import Options.Applicative ((<**>))
-import qualified Options.Applicative as OP
 
 import Cli ( argumentsParser
            , getWord
@@ -16,8 +16,8 @@ import Words.Database as WDB
 import Words.Similarity (findMostSimilarWords)
 
 data NymState = NymState 
-    { dbHandle :: WDB.Handle
-    , arguments :: Arguments
+    { getDbHandle :: WDB.Handle
+    , getArguments :: Arguments
     }
 
 dbFilename :: Text
@@ -35,24 +35,24 @@ main = do
     run state
   where
     opts = OP.info
-        (argumentsParser <**> OP.helper)
+        (OP.helper <*> argumentsParser)
         (OP.fullDesc <> OP.progDesc description)
     description = mconcat ["nym - synonyms/antonyms lookup tool"]
 
 run :: NymState -> IO ()
 run state = do
-    nyms <- lookForNyms db category word
+    nyms <- lookForNyms dbHandle category word
     case nyms of
         [] -> do
-            allWords <- getAllWords db
+            allWords <- getAllWords dbHandle
             let similarWords = findMostSimilarWords' allWords
             TIO.putStrLn $ Messages.buildNotFoundNyms category word similarWords
         _ -> do
             let firstN = take toTake nyms
             mapM_ TIO.putStrLn firstN
   where
-    category = getCategory $ arguments state
-    word = getWord $ arguments state
-    toTake = getNResults $ arguments state
-    db = dbHandle state
+    category = getCategory $ getArguments state
+    word = getWord $ getArguments state
+    toTake = getNResults $ getArguments state
+    dbHandle = getDbHandle state
     findMostSimilarWords' = findMostSimilarWords word
