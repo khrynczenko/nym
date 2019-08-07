@@ -1,6 +1,7 @@
 module Main where
 
 import qualified Options.Applicative as OP
+import qualified Data.List as List
 
 import Data.Text (Text)
 import qualified Data.Text.IO as TIO
@@ -45,7 +46,8 @@ run state = do
     case nyms of
         [] -> do
             allWords <- retrieveWords dbHandle
-            let similarWords = findMostSimilarWords' allWords
+            let withoutWordItself = List.delete word allWords
+            let similarWords = findMostSimilarWords' withoutWordItself
             TIO.putStrLn $ Messages.buildNotFoundNyms category word similarWords
         _ -> do
             let firstN = take toTake nyms
