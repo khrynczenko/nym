@@ -21,7 +21,7 @@ buildNotFoundNyms category word similarWords
   where
     category' = T.init . T.toLower . T.pack . show $ category
     notFoundNymsMessage = 
-        "Could not find " <> category' <> " for " <> word <> "." :: Text
+        "Could not find " <> category' <> "s" <> " for " <> word <> "." :: Text
     maybeSimilarMessage = 
         " Maybe you meant one of these:\n" 
     similarWordsMessage = intersperse "\n" similarWords
