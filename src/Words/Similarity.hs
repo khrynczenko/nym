@@ -7,22 +7,16 @@ import Data.Array
 import Data.Text (Text)
 import qualified Data.Text as T
 
-similarityThreshold :: Int
-similarityThreshold = 2
-
--- |Find similar words from a list of words. It uses levenstein distance
--- up to 'similarityThreshold' to decide whether word is similar or not.
+-- |Find similar words from a list of words.
 findMostSimilarWords :: Text -> [Text] -> [Text]
-findMostSimilarWords word allWords = similarWords
+findMostSimilarWords word allWords = bestWords
   where
-    similarWords = filter (areWordsSimilar word) allWords
-
-areWordsSimilar :: Text -> Text -> Bool
-areWordsSimilar w1 w2 = distance <= similarityThreshold
-  where
-    w1' = T.unpack w1
-    w2' = T.unpack w2
-    distance = computeLevensteinDistance w1' w2'
+    word' = T.unpack word
+    allWords' = map T.unpack allWords
+    scores = map (computeLevensteinDistance word') allWords'
+    wordsAndScores = zip allWords scores
+    bestScore = minimum scores
+    bestWords = map fst $ filter (\x -> snd x == bestScore) wordsAndScores
 
 -- |This implementation is a copied from an anwser on reddit provided by 
 -- user cgibbard. All the details under 
