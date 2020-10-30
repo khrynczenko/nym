@@ -1,4 +1,4 @@
-module Main (main) where
+module Main where
 
 import qualified Options.Applicative as OP
 import qualified Data.List as List
@@ -12,6 +12,7 @@ import Cli ( argumentsParser
            , Arguments(..)
            )
 import qualified Messages as Messages
+import Words.Database (retrieveNyms, retrieveWords)
 import Words.Database as WDB
 import Words.Similarity (findMostSimilarWords)
 
