@@ -12,7 +12,6 @@ import Cli ( argumentsParser
            , Arguments(..)
            )
 import qualified Messages as Messages
-import Words.Database (retrieveNyms, retrieveWords)
 import Words.Database as WDB
 import Words.Similarity (findMostSimilarWords)
 
