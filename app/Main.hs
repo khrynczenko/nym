@@ -11,11 +11,11 @@ import Cli ( argumentsParser
            , getCategory
            , Arguments(..)
            )
-import qualified Messages as Messages
+import qualified Messages
 import Words.Database as WDB
 import Words.Similarity (findMostSimilarWords)
 
-data NymState = NymState 
+data ApplicationState = ApplicationState
     { getDbHandle :: WDB.Handle
     , getArguments :: Arguments
     }
@@ -23,10 +23,10 @@ data NymState = NymState
 dbFilename :: Text
 dbFilename = "nyms.db"
 
-createNymState :: WDB.DatabasePath -> Arguments -> IO NymState
+createNymState :: WDB.DatabasePath -> Arguments -> IO ApplicationState
 createNymState dbPath args = do
     handle <- WDB.createHandle dbPath
-    return (NymState handle args)
+    return (ApplicationState handle args)
 
 main :: IO ()
 main = do
@@ -39,21 +39,20 @@ main = do
         (OP.fullDesc <> OP.progDesc description)
     description = mconcat ["nym - synonyms/antonyms lookup tool"]
 
-run :: NymState -> IO ()
+run :: ApplicationState -> IO ()
 run state = do
     nyms <- retrieveNyms dbHandle category word
     case nyms of
         [] -> do
             allWords <- retrieveWords dbHandle
             let withoutWordItself = List.delete word allWords
-            let similarWords = findMostSimilarWords' withoutWordItself
+            let similarWords = findMostSimilarWords word withoutWordItself
             TIO.putStrLn $ Messages.buildNotFoundNyms category word similarWords
-        _ -> do
-            let firstN = take toTake nyms
+        _nyms -> do
+            let firstN = take toTake _nyms
             mapM_ TIO.putStrLn firstN
   where
     category = getCategory $ getArguments state
     word = getWord $ getArguments state
     toTake = getNResults $ getArguments state
     dbHandle = getDbHandle state
-    findMostSimilarWords' = findMostSimilarWords word

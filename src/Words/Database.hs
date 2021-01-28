@@ -17,7 +17,7 @@ import Words (Category)
 
 type DatabasePath = Text
 
-data Handle = Handle { connection :: Connection }
+newtype Handle = Handle { connection :: Connection }
 
 createHandle :: DatabasePath -> IO Handle
 createHandle dbPath = Handle <$> DB.open (T.unpack dbPath)
@@ -33,7 +33,7 @@ retrieveNyms handle category word = do
 
 retrieveWords :: Handle -> IO [Text]
 retrieveWords handle = do
-    allWords <- (DB.query_ conn sqlQuery) :: IO [Only Text]
+    allWords <- DB.query_ conn sqlQuery :: IO [Only Text]
     return $ fmap DB.fromOnly allWords
   where
     conn = connection handle
@@ -41,12 +41,12 @@ retrieveWords handle = do
 
 searchForNyms :: Handle -> Category -> Int -> IO [Text]
 searchForNyms handle category wordId = do 
-    foundNyms <- (DB.query conn getNyms (Only wordId)) :: IO [Only Text]
+    foundNyms <- DB.query conn getNyms (Only wordId) :: IO [Only Text]
     return $ fmap DB.fromOnly foundNyms
   where
     conn = connection handle
-    tableName = T.toLower $ ( T.pack $ show category)
-    columnName = (T.toLower . T.init $ ( T.pack $ show category)) <> "_id"
+    tableName = T.toLower $ T.pack $ show category
+    columnName = (T.toLower . T.init . T.pack) (show category) <> "_id"
     getNyms = DB.Query $ mconcat 
       [ "SELECT words.word FROM words WHERE words.id IN ( "
       , "SELECT "
@@ -60,7 +60,7 @@ searchForNyms handle category wordId = do
 searchForWordId :: Handle -> Text -> IO (Maybe Int)
 searchForWordId handle word = do 
     foundIds <- 
-      (DB.query conn lookForWordId (Only (word'))) :: IO [Only Int] 
+      DB.query conn lookForWordId (Only word') :: IO [Only Int]
     let foundIds' = fmap DB.fromOnly foundIds
     return $ listToMaybe foundIds'
   where

@@ -15,9 +15,9 @@ type SimilarWords = [Text]
 buildNotFoundNyms :: Category -> Text -> SimilarWords -> Text
 buildNotFoundNyms category word similarWords
     | null similarWords = notFoundNymsMessage
-    | otherwise = (notFoundNymsMessage 
-                   <> maybeSimilarMessage
-                   <> mconcat similarWordsMessage)
+    | otherwise = notFoundNymsMessage
+                  <> maybeSimilarMessage
+                  <> mconcat similarWordsMessage
   where
     category' = T.init . T.toLower . T.pack . show $ category
     notFoundNymsMessage = 

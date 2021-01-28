@@ -9,6 +9,7 @@ import qualified Data.Text as T
 
 -- |Find similar words from a list of words.
 findMostSimilarWords :: Text -> [Text] -> [Text]
+findMostSimilarWords _ [] = []
 findMostSimilarWords word allWords = bestWords
   where
     word' = T.unpack word

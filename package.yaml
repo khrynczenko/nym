@@ -43,6 +43,7 @@ library:
   - -Werror
   default-extensions:
   - OverloadedStrings
+  - StrictData
   dependencies:
   - sqlite-simple
   - text
@@ -64,6 +65,7 @@ executables:
     - -Werror
     default-extensions:
     - OverloadedStrings
+    - StrictData
     dependencies:
     - nym
     - optparse-applicative
@@ -86,6 +88,7 @@ tests:
     - -Werror
     default-extensions:
     - OverloadedStrings
+    - StrictData
     dependencies:
     - nym
     - hspec
